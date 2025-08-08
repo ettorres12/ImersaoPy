@@ -157,4 +157,93 @@ df_limpo = df_limpo.assign(ano = df_limpo['ano'].astype("int64"))
 print("\nDataFrame final com a coluna 'ano' convertida para int:")
 print(df_limpo.head())
 
+#Aula 3 continuação da aula 1
 
+# Garante que df_limpo ainda tem as colunas com os nomes corretos e os dados traduzidos
+df_limpo = df.dropna()
+
+# Gráfico: Quantidade de cargos por nível de experiência
+plt.figure(figsize=(6, 4))
+df_limpo['nivel_experiencia'].value_counts().plot(kind='bar', title='Quantidade de cargos por nível de experiência')
+plt.xlabel('Nível de Experiência')
+plt.ylabel('Quantidade')
+plt.show()
+
+# Gráfico de barras com salário médio por nível de experiência
+ordem = df_limpo.groupby('nivel_experiencia')['salario_em_usd'].mean().sort_values().index
+
+plt.figure(figsize=(8, 5))
+sns.barplot(data=df_limpo, x='nivel_experiencia', y='salario_em_usd', order=ordem)
+plt.title('Salário médio por nível de experiência')
+plt.xlabel('Nível de experiência')
+plt.ylabel('Salário médio anual em USD')
+plt.show()
+
+# Histograma dos salários
+plt.figure(figsize=(8, 4))
+sns.histplot(df_limpo['salario_em_usd'], bins=50, kde=True)
+plt.title('Distribuição dos salários anuais')
+plt.xlabel('Salário em USD')
+plt.ylabel('Frequência')
+plt.show()
+
+# Boxplot geral
+plt.figure(figsize=(8, 5))
+sns.boxplot(x=df_limpo['salario_em_usd'])
+plt.title('Boxplot dos salários anuais')
+plt.xlabel('Salário em USD')
+plt.show()
+
+# Boxplot por nível de experiência com ordem correta
+ordem_senioridade = ['Junior', 'Pleno', 'Senior', 'Executivo']
+plt.figure(figsize=(8, 5))
+sns.boxplot(x='nivel_experiencia', y='salario_em_usd', data=df_limpo, order=ordem_senioridade)
+plt.title('Boxplot dos salários por nível de experiência')
+plt.xlabel('Nivel de experiência')
+plt.ylabel('Salário em USD')
+plt.show()
+
+# Gráfico de pizza do tipo de trabalho
+remoto_contagem = df_limpo['remoto'].value_counts().reset_index()
+remoto_contagem.columns = ['tipo_trabalho', 'quantidade']
+
+fig = px.pie(remoto_contagem,
+             names='tipo_trabalho',
+             values='quantidade',
+             title='Distribuição do tipo de trabalho',
+             hole=0.5)
+fig.update_traces(textinfo='percent+label')
+fig.show()
+
+# Mapeamento de regiões
+regiao_mapping = {
+    'US': 'America do Norte',
+    'CA': 'America do Norte',
+    'GB': 'Europa',
+    'DE': 'Europa',
+    'FR': 'Europa',
+    'AU': 'Oceania',
+    'IN': 'Asia'
+}
+df_limpo['regiao'] = df_limpo['empresa'].map(regiao_mapping)
+
+# Verifica os dados mapeados
+print(df_limpo['regiao'].value_counts())
+
+# Gráfico de barras com salário médio por nível de experiência e região
+salario_medio_por_experiencia_regiao = df_limpo.groupby(['nivel_experiencia', 'regiao'])['salario_em_usd'].mean().reset_index()
+
+fig = px.bar(
+    salario_medio_por_experiencia_regiao,
+    x='nivel_experiencia',
+    y='salario_em_usd',
+    color='regiao',
+    title='Média Salarial por Nível de Experiência e Região',
+    labels={
+        'nivel_experiencia': 'Nível de Experiência',
+        'salario_em_usd': 'Média Salarial Anual (USD)',
+        'regiao': 'Região'
+    },
+    category_orders={'nivel_experiencia': ordem_senioridade}
+)
+fig.show()
